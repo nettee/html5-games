@@ -1,0 +1,106 @@
+@CHARSET "UTF-8";
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+    font-size: 1em;
+	font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+    height: 100%;
+    width: 100%;
+	background: #faf8ef;
+	color: #776e65;
+}
+
+#container {
+	height: 432px;
+	width: 550px;
+	margin: 15px auto 0;
+}
+
+#gamecontent {
+	height: 432px;
+	width: 240px;
+	float: left;
+	margin-right: 20px;
+}
+
+#gameinfo {
+	height: 432px;
+	width: 180px;
+	float: left;
+}
+
+#nextcanvas {
+	margin-bottom: 25px;
+}
+
+#gamedata {
+	height: 136px;
+}
+
+.data_container {
+	width: 180px;
+	height: 32px;
+	margin: 20px auto;
+}
+
+.data_container p {
+	line-height: 32px;
+	text-align: center;
+	color: #f9f6f2;
+	font-weight: bold;
+}
+
+.data_text {
+	width: 50px;
+	padding: 0 10px;
+	float: left;
+	background: #bbada0;
+	border-radius: 9px 0 0 9px;
+}
+
+.data_value {
+	width: 90px;
+	padding: 0 10px;
+	float: left;
+	background: #d0c6bc;
+	border-radius: 0 9px 9px 0;
+}
+
+#gamecontrol {
+	height: 36px;
+	margin: 35px auto;
+}
+
+.button {
+	height: 36px;
+	line-height: 36px;
+	padding: 0 10px;
+	text-align: center;
+	background: #8f7a66;
+	color: #f9f6f2;
+	border-radius: 5px;
+	font-weight: bold;
+}
+
+#quitButton {
+	float: left;
+	width: 56px;
+}
+
+#pauseButton {
+	float: right;
+	width: 72px;
+}
+
+#gamename {
+	text-align: center;
+}
+
+#gamename h1 {
+	font-family: Verdana, sans-serif;
+}
+

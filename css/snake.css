@@ -1,0 +1,88 @@
+@CHARSET "UTF-8";
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    font-size: 1em;
+	font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+    height: 100%;
+    width: 100%;
+	background: #faf8ef;
+	color: #776e65;
+}
+
+#container {
+	width: 720px;
+	margin: 0 auto;
+	text-align: center;
+}
+
+header {
+	height: 70px;
+	line-height: 70px;
+}
+
+header h1 {
+	float: left;
+	font-family: Verdana, sans-serif;
+}
+
+#gamecontrol {
+	font-size: 17px;
+	height: 36px;
+	line-height: 36px;
+	margin-bottom: 16px;
+}
+
+#scorecontainer {
+	width: 200px;
+	height: 36px;
+	line-height: 36px;
+	float: left;
+}
+
+#scoretext {
+	width: 50px;
+	height: 36px;
+	line-height: 36px;
+	padding: 0 10px;
+	text-align: center;
+	float: left;
+	background: #bbada0;
+	color: #f9f6f2;
+	border-radius: 9px 0 0 9px;
+	font-weight: bold;
+}
+
+#score {
+	width: 80px;
+	height: 36px;
+	line-height: 36px;
+	padding: 0 10px; 
+	text-align: center;
+	float: left;
+	background: #d0c6bc;
+	color: #f9f6f2;
+	border-radius: 0 9px 9px 0;
+	font-weight: bold;
+}
+
+#gamebutton {
+	width: 100px;
+	height: 36px;
+	line-height: 36px;
+	padding: 0 14px; 
+	text-align: center;
+	float: right;
+	background: #8f7a66;
+	color: #f9f6f2;
+	border-radius: 5px;
+	font-weight: bold;
+}

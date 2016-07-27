@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Tetris</title>
+	<link rel="stylesheet" href="css/tetris.css">
+</head>
+<body>
+	<div id="container">
+		<div id="gamecontent">
+			<canvas id="maincanvas" height="432" width="240">Your browser does not support html5.</canvas>
+		</div>
+		<div id="gameinfo">
+			<canvas id="nextcanvas" height="96" width="180">Your browser does not support html5.</canvas>
+			<div id="gamedata">
+				<div class="data_container">
+					<p class="data_text">Level</p>
+					<p id="level" class="data_value">1</p>
+				</div>
+				<div class="data_container">
+					<p class="data_text">Lines</p>
+					<p id="lines" class="data_value">0</p>
+				</div>
+				<div class="data_container">
+					<p class="data_text">Score</p>
+					<p id="score" class="data_value">0</p>
+				</div>
+			</div>
+			<div id="gamecontrol">
+				<p>
+					<a id="quitButton" class="button">Quit</a>
+					<a id="pauseButton" class="button">Pause</a>
+				</p>
+			</div>
+			<div id="gamename">
+				<h1>Tetris</h1>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/tetris.js"></script>
+</body>
+</html>
