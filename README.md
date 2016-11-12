@@ -4,7 +4,11 @@ Classic games implemented by HTML5 Canvas.
 
 + Gluttonous snake
 
+![Gluttonous Snake](img/Gluttonous-Snake.png)
+
 + Tetris
+
+![Tetris](img/Tetris.png)
 
 ## Run
 
