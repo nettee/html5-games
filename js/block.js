@@ -90,7 +90,7 @@ function blockApp() {
 			speed : speed,
 			x : board.x + board.width / 2,
 			y : board.y - radius,
-			angle : Math.PI * 0.65, // start angle : northwest
+			angle : Math.PI * 0.75, // start angle : northwest
 			
 			loc : function() {
 				return '(' + this.x + ', ' + this.y + ')';
@@ -122,8 +122,8 @@ function blockApp() {
 	
 	var ButtonText = { Start : 'Start', Pause : 'Pause', Resume : 'Resume', };
 	
-	var Status = { End : 'End', Running : 'Running', Suspend : 'Suspend', };
-	var status = Status.End;
+	var Status = { Begin : 'Begin', Running : 'Running', Suspend : 'Suspend', };
+	var status = Status.Begin;
 	
 	var button = document.getElementById('gamebutton');
 	button.onclick = function() {
@@ -131,7 +131,7 @@ function blockApp() {
 		if (ball.dead) {
 			document.getElementById('score').value = 0;
 			window.location.reload();	
-		} else if (status == Status.End || status == Status.Suspend) {
+		} else if (status == Status.Begin || status == Status.Suspend) {
 			button.innerHTML = ButtonText.Pause;
 			status = Status.Running;
 		} else if (status == Status.Running) {
@@ -147,29 +147,34 @@ function blockApp() {
 			return;
 		}
 		window.setTimeout(gameLoop, 10);
-		if (status == Status.Running) {
+        if (status == Status.Begin) {
+            moveBoardStatically();
+        } else if (status == Status.Running) {
 			moveBall();
 			moveBoard();
-			repaintAll();
-		}
+            checkRebound();
+            checkCollision();
+            checkStrike();
+        }
+        repaintAll();
 	})(); // enter game
 	
 	function fadeOut() {
 		// fade out
-		context.globalAlpha = 0.4;
+		context.globalAlpha = 0.8;
 		context.fillStyle = '#aaaaaa';
 		context.fillRect(0, 0, canvas.width, canvas.height);
 		
 		// show game over text
 		context.globalAlpha = 1;
-		context.fillStyle = color.snakeHead;
+		context.fillStyle = color.block;
 		context.textBaseline = 'middle';
 		context.textAlign = 'center';
 		
 		context.font = '50px bold sans-serif';
-		context.fillText('Game Over', canvas.width * 0.5, canvas.height * 0.35);
+		context.fillText('Game Over', canvas.width * 0.5, canvas.height * 0.5);
 		context.font = '20px bold sans-serif';
-		context.fillText('click New Game to restart', canvas.width * 0.5, canvas.height * 0.55);
+		context.fillText('click New Game to restart', canvas.width * 0.5, canvas.height * 0.7);
 		
 	}	
 
@@ -185,17 +190,20 @@ function blockApp() {
 		
 		var keyCode = e.keyCode ? e.keyCode : e.which;
 
-		if (status != Status.Running) {
-			return;
-		}
+        if (keyCode == key.space) {
+            button.click();
+        } else {
 
-		if (keyCode == key.left) {
-			board.leftForce = true;
-		} else if (keyCode == key.right) {
-			board.rightForce = true;
-		} else if (keyCode == key.space) {
-			button.click();
-		}
+            if (status == Status.Suspend) {
+                return;
+            }
+
+            if (keyCode == key.left) {
+                board.leftForce = true;
+            } else if (keyCode == key.right) {
+                board.rightForce = true;
+            }
+        }
 	}
 	
 	function doKeyUp(e) {
@@ -215,6 +223,12 @@ function blockApp() {
 		ball.y -= ball.speed * Math.sin(ball.angle);
 		
 	}
+    
+    function moveBoardStatically() {
+        moveBoard();
+        ball.x = board.x + board.width / 2;
+    }
+
 	
 	function moveBoard() {
 		if (board.leftForce && !board.rightForce) {
@@ -238,6 +252,79 @@ function blockApp() {
 		}
 	}
 
+    function checkRebound() {
+        if (ball.x - ball.radius < 0) {
+            console.log('rebound');
+            ball.angle = Math.PI - ball.angle;
+            ball.x = 2 * ball.radius - ball.x;
+        } else if (ball.x + ball.radius >= X) {
+            console.log('rebound');
+            ball.angle = Math.PI - ball.angle;
+            ball.x = 2 * (X - ball.radius) - ball.x;
+        } else if (ball.y - ball.radius < 0) {
+            console.log('rebound');
+            ball.angle = -ball.angle;
+            ball.y = 2 * ball.radius - ball.y;
+        } 
+    }
+
+    function checkCollision() {
+        for (block of blocks) {
+            if (block.dead) {
+                continue;
+            }
+            var hasCollision = checkCollision0(block);
+            if (hasCollision) {
+                break;
+            }
+        }
+    }
+
+    function checkCollision0(block) {
+        var hasCollision = false;
+        if (Math.sin(ball.angle) > 0
+                && ball.x >= block.x
+                && ball.x <= block.x + blocks.width
+                && ball.y - ball.radius < block.y + blocks.height) {
+            console.log('collision at south');
+            ball.angle = -ball.angle;
+            ball.y = 2 * (block.y + blocks.height + ball.radius) - ball.y;
+            block.dead = true;
+            hasCollision = true;
+        } else if (ball.y >= block.y
+                && ball.y <= block.y + blocks.height
+                && Math.abs(ball.x - block.x) < ball.radius) {
+            console.log('collision at west');
+            ball.angle = Math.PI - ball.angle;
+            ball.x = 2 * (block.x - ball.radius) - ball.x;
+            block.dead = true;
+            hasCollision = true;
+        } else if (ball.y >= block.y
+                && ball.y <= block.y + blocks.height
+                && Math.abs(ball.x - (block.x + blocks.width)) < ball.radius) {
+            console.log('collision at east');
+            ball.angle = Math.PI - ball.angle;
+            ball.x = 2 * (block.x + blocks.width + ball.radius) - ball.x;
+            block.dead = true;
+            hasCollision = true;
+        }
+        return hasCollision;
+    }
+
+    function checkStrike() {
+        if (Math.sin(ball.angle) < 0 
+                && ball.x >= board.x
+                && ball.x <= board.x + board.width
+                && ball.y + ball.radius > board.y) {
+            console.log('strike');
+            ball.angle = -ball.angle;
+            ball.y = 2 * (board.y - ball.radius) - ball.y;
+        } else if (Math.sin(ball.angle) < 0 && ball.y + ball.radius > Y) {
+            console.log('game over');
+            gameOver();
+        }
+    }
+
 	function addScore() {
 		score += speed;
 		document.getElementById("score").innerText = score;
@@ -245,7 +332,7 @@ function blockApp() {
 
 	function gameOver() {
 		status = Status.Suspend;
-		snake.dead = true;
+        ball.dead = true;
 		button.innerHTML = 'New Game';
 	}
 
@@ -266,6 +353,9 @@ function blockApp() {
 		// draw blocks
 		context.fillStyle = color.block;
 		for (var block of blocks) {
+            if (block.dead) {
+                continue;
+            }
 			context.fillRect(block.x, block.y, blocks.width, blocks.height);
 		}
 		
