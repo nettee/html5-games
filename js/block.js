@@ -16,14 +16,12 @@ function blockApp() {
 	var Dir = { West : "West", East : "East", North : "North", South : "South", };
 
 	// coordinate range
-	var X = 720;
-	var Y = 360;
-
-	var speed = 100;
+	var X = 600;
+	var Y = 480;
 
 	var color = {
 		background : "#d0c6bc",
-		block : "#bbada0",
+		block : "#f67c5f",
 		ball : '#cc9933',
 		board : "#8f7a66",
 	};
@@ -32,26 +30,49 @@ function blockApp() {
 	
 	var blocks = (function() {
 		
-		return {
-			draw : function() {
-				
-			},
-		};
+		var rows = 6;
+		var columns = 6;
+		var height = 20;
+		var xgap = 15;
+		var ygap = 8;
+		
+		var width = (X - xgap * (columns + 1)) / columns;
+		
+		var o = new Array();
+		
+		for (var i = 0; i < rows; i++) {
+			for (var j = 0; j < columns; j++) {
+				o.push({
+					x : xgap + j * (xgap + width),
+					y : ygap + i * (ygap + height),
+				});
+			}
+		}
+		
+		o.width = width;
+		o.height = height;
+		
+		return o;
 		
 	}());
 
 	
 	var board = (function() {
 		
+		// The board's north west coordinate
+		
 		var width = 80;
 		var height = 7;
+		var speed = 4;
 		
 		return {
 			width : width,
 			height : height,
+			speed : speed,
 			x : X / 2 - width / 2,
 			y : Y - 20,
-			
+			leftForce : false,
+			rightForce : false,
 			
 			draw : function() {
 				
@@ -62,12 +83,19 @@ function blockApp() {
 	var ball = (function() {
 		
 		var radius = 9;
+		var speed = 2;
 	
 		return {
 			radius : radius,
+			speed : speed,
 			x : board.x + board.width / 2,
 			y : board.y - radius,
 			angle : Math.PI * 0.65, // start angle : northwest
+			
+			loc : function() {
+				return '(' + this.x + ', ' + this.y + ')';
+			},
+			
 			draw : function() {
 				
 			},
@@ -80,8 +108,6 @@ function blockApp() {
 	var canvas = document.getElementById('main-canvas');
 	var context = canvas.getContext('2d');
 	
-	var dirInstrQueue = new Array();
-	
 	// initialization
 	
 	canvas.width = X;
@@ -90,6 +116,7 @@ function blockApp() {
 	repaintAll();
 	
 	window.addEventListener('keydown', doKeyDown, true);
+	window.addEventListener('keyup', doKeyUp, true);
 	
 	// game loop setting
 	
@@ -119,9 +146,10 @@ function blockApp() {
 			window.setTimeout(fadeOut, 1);
 			return;
 		}
-		window.setTimeout(gameLoop, 1000 / speed);
+		window.setTimeout(gameLoop, 10);
 		if (status == Status.Running) {
-			moveForward();
+			moveBall();
+			moveBoard();
 			repaintAll();
 		}
 	})(); // enter game
@@ -147,15 +175,13 @@ function blockApp() {
 
 	// functions
 	
+	var key = {
+		left : 37,
+		right : 39,
+		space : 32,
+	};
+	
 	function doKeyDown(e) {
-		
-		var key = {
-			left : 37,
-			up : 38,
-			right : 39,
-			down : 40,
-			space : 32,
-		};
 		
 		var keyCode = e.keyCode ? e.keyCode : e.which;
 
@@ -164,40 +190,52 @@ function blockApp() {
 		}
 
 		if (keyCode == key.left) {
-			dirInstrQueue.push(Dir.West);
-		} else if (keyCode == key.up) {
-			dirInstrQueue.push(Dir.North);
+			board.leftForce = true;
 		} else if (keyCode == key.right) {
-			dirInstrQueue.push(Dir.East);
-		} else if (keyCode == key.down) {
-			dirInstrQueue.push(Dir.South);
+			board.rightForce = true;
 		} else if (keyCode == key.space) {
 			button.click();
 		}
+	}
+	
+	function doKeyUp(e) {
+		board.leftForce = false;
+		board.rightForce = false;
 	}
 
 	function pointString(point) {
 		return '(' + point.x + ', ' + point.y + ')';
 	}
 	
-	function moveForward() {
+	function moveBall() {
 		
 		console.log('moving forward!');
 		
-		ball.x += Math.cos(ball.angle);
-		ball.y -= Math.sin(ball.angle);
+		ball.x += ball.speed * Math.cos(ball.angle);
+		ball.y -= ball.speed * Math.sin(ball.angle);
+		
 	}
-
-	function isOnSnake(p) {
-		if (snake.head.x == p.x && snake.head.y == p.y) {
-			return true;
+	
+	function moveBoard() {
+		if (board.leftForce && !board.rightForce) {
+			moveBoardLeft();
+		} else if (board.rightForce && !board.leftForce) {
+			moveBoardRight();
 		}
-		for (var i = 0; i < snake.body.length - 1; i++) {
-			if (snake.body[i].x == p.x && snake.body[i].y == p.y) {
-				return true;
-			}
+	}
+	
+	function moveBoardLeft() {
+		board.x -= board.speed;
+		if (board.x < 0) {
+			board.x = 0;
 		}
-		return false;
+	}
+	
+	function moveBoardRight() {
+		board.x += board.speed;
+		if (board.x + board.width >= X) {
+			board.x = X - board.width;
+		}
 	}
 
 	function addScore() {
@@ -225,6 +263,12 @@ function blockApp() {
 		context.fillStyle = color.background;
 		context.fillRect(0, 0, canvas.width, canvas.height);
 		
+		// draw blocks
+		context.fillStyle = color.block;
+		for (var block of blocks) {
+			context.fillRect(block.x, block.y, blocks.width, blocks.height);
+		}
+		
 		// draw board
 		context.fillStyle = color.board;
 		context.fillRect(board.x, board.y, board.width, board.height);
@@ -236,8 +280,5 @@ function blockApp() {
 		context.closePath();
 		context.fill();
 		
-		blocks.draw();
-		ball.draw();
-		board.draw();
 	}
 }
