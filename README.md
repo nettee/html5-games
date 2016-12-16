@@ -10,6 +10,10 @@ Classic games implemented by HTML5 Canvas.
  
 ![Tetris](img/Tetris.png)
 
++ Block Breaker
+
+![Block Breaker](img/Block-Breaker.png)
+
 ## Run
 
 Open the html files in your browser (Chrome recommended).
