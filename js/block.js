@@ -25,6 +25,16 @@ function blockApp() {
 		ball : '#cc9933',
 		board : "#8f7a66",
 	};
+
+    function Point(x, y) {
+        return {
+            x : x,
+            y : y,
+            toString: function() {
+                return '(' + x + ', ' + y + ')';
+            },
+        };
+    }
 	
 	// objects
 	
@@ -42,10 +52,19 @@ function blockApp() {
 		
 		for (var i = 0; i < rows; i++) {
 			for (var j = 0; j < columns; j++) {
-				o.push({
-					x : xgap + j * (xgap + width),
-					y : ygap + i * (ygap + height),
-				});
+                var block = {
+                    i : i,
+                    j : j,
+                    x : xgap + j * (xgap + width),
+                    y : ygap + i * (ygap + height),
+                    coord : function() {
+                        return Point(this.i, this.j);
+                    },
+                    loc : function() {
+                        return Point(this.x, this.y);
+                    },
+                };
+                o.push(block);
 			}
 		}
 		
@@ -63,7 +82,7 @@ function blockApp() {
 		
 		var width = 80;
 		var height = 7;
-		var speed = 4;
+		var speed = 2;
 		
 		return {
 			width : width,
@@ -83,7 +102,7 @@ function blockApp() {
 	var ball = (function() {
 		
 		var radius = 9;
-		var speed = 2;
+		var speed = 1;
 	
 		return {
 			radius : radius,
@@ -93,9 +112,9 @@ function blockApp() {
 			angle : Math.PI * 0.75, // start angle : northwest
 			
 			loc : function() {
-				return '(' + this.x + ', ' + this.y + ')';
+                return Point(this.x, this.y);
 			},
-			
+
 			draw : function() {
 				
 			},
@@ -146,7 +165,7 @@ function blockApp() {
 			window.setTimeout(fadeOut, 1);
 			return;
 		}
-		window.setTimeout(gameLoop, 10);
+		window.setTimeout(gameLoop, 4);
         if (status == Status.Begin) {
             moveBoardStatically();
         } else if (status == Status.Running) {
@@ -216,12 +235,8 @@ function blockApp() {
 	}
 	
 	function moveBall() {
-		
-		console.log('moving forward!');
-		
 		ball.x += ball.speed * Math.cos(ball.angle);
 		ball.y -= ball.speed * Math.sin(ball.angle);
-		
 	}
     
     function moveBoardStatically() {
@@ -254,15 +269,15 @@ function blockApp() {
 
     function checkRebound() {
         if (ball.x - ball.radius < 0) {
-            console.log('rebound');
+            console.log('rebound on the left wall');
             ball.angle = Math.PI - ball.angle;
             ball.x = 2 * ball.radius - ball.x;
         } else if (ball.x + ball.radius >= X) {
-            console.log('rebound');
+            console.log('rebound on the right wall');
             ball.angle = Math.PI - ball.angle;
             ball.x = 2 * (X - ball.radius) - ball.x;
         } else if (ball.y - ball.radius < 0) {
-            console.log('rebound');
+            console.log('rebound on the top wall');
             ball.angle = -ball.angle;
             ball.y = 2 * ball.radius - ball.y;
         } 
@@ -281,12 +296,31 @@ function blockApp() {
     }
 
     function checkCollision0(block) {
+
+        function logCollision(block, direction, distance) {
+            console.log('collide ' + block.coord().toString() 
+                    + ' on the ' + direction);
+            console.log('ball at ' + ball.loc().toString() 
+                    + ', block at ' + block.loc().toString()
+                    + ' -- ' + Point(block.x + blocks.width, block.y + blocks.height).toString()
+                    + ', distance = ' + distance);
+        }
+
         var hasCollision = false;
-        if (Math.sin(ball.angle) > 0
+        if (Math.sin(ball.angle) < 0
                 && ball.x >= block.x
                 && ball.x <= block.x + blocks.width
-                && ball.y - ball.radius < block.y + blocks.height) {
-            console.log('collision at south');
+                && Math.abs(ball.y - block.y) < ball.radius) {
+            logCollision(block, 'north', ball.y - block.y);
+            ball.angle = -ball.angle;
+            ball.y = 2 * (block.y - ball.radius) - ball.y;
+            block.dead = true;
+            hasCollision = true;
+        } else if (Math.sin(ball.angle) > 0
+                && ball.x >= block.x
+                && ball.x <= block.x + blocks.width
+                && Math.abs(ball.y - (block.y + blocks.height)) < ball.radius) {
+            logCollision(block, 'south', ball.y - (block.y + blocks.height));
             ball.angle = -ball.angle;
             ball.y = 2 * (block.y + blocks.height + ball.radius) - ball.y;
             block.dead = true;
@@ -294,7 +328,7 @@ function blockApp() {
         } else if (ball.y >= block.y
                 && ball.y <= block.y + blocks.height
                 && Math.abs(ball.x - block.x) < ball.radius) {
-            console.log('collision at west');
+            logCollision(block, 'west', ball.x - block.x);
             ball.angle = Math.PI - ball.angle;
             ball.x = 2 * (block.x - ball.radius) - ball.x;
             block.dead = true;
@@ -302,7 +336,7 @@ function blockApp() {
         } else if (ball.y >= block.y
                 && ball.y <= block.y + blocks.height
                 && Math.abs(ball.x - (block.x + blocks.width)) < ball.radius) {
-            console.log('collision at east');
+            logCollision(block, 'east', ball.x - (block.x + blocks.width));
             ball.angle = Math.PI - ball.angle;
             ball.x = 2 * (block.x + blocks.width + ball.radius) - ball.x;
             block.dead = true;
@@ -316,7 +350,7 @@ function blockApp() {
                 && ball.x >= board.x
                 && ball.x <= board.x + board.width
                 && ball.y + ball.radius > board.y) {
-            console.log('strike');
+            console.log('strike the board');
             ball.angle = -ball.angle;
             ball.y = 2 * (board.y - ball.radius) - ball.y;
         } else if (Math.sin(ball.angle) < 0 && ball.y + ball.radius > Y) {
