@@ -16,4 +16,8 @@ Classic games implemented by HTML5 Canvas.
 
 ## Run
 
-Open the html files in your browser (Chrome recommended).
+```Shell
+make start
+```
+
+Or you can open the html files in your browser (Chrome recommended).
