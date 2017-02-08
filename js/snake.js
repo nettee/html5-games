@@ -119,6 +119,7 @@ function snakeApp() {
 			return;
 		}
 		window.setTimeout(gameLoop, 1000 / speed);
+        console.log(status);
 		if (status == Status.Running) {
 			moveForward();
 			repaintAll();
@@ -158,21 +159,26 @@ function snakeApp() {
 		
 		var keyCode = e.keyCode ? e.keyCode : e.which;
 
-		if (status != Status.Running) {
-			return;
-		}
+        if (keyCode == key.space) {
+            // bugfix: enable space key whatever game status is.
+            button.click();
+        } else {
+            if (status == Status.Suspend) {
+                return;
+            }
 
-		if (keyCode == key.left) {
-			dirInstrQueue.push(Dir.West);
-		} else if (keyCode == key.up) {
-			dirInstrQueue.push(Dir.North);
-		} else if (keyCode == key.right) {
-			dirInstrQueue.push(Dir.East);
-		} else if (keyCode == key.down) {
-			dirInstrQueue.push(Dir.South);
-		} else if (keyCode == key.space) {
-			button.click();
-		}
+            if (keyCode == key.left) {
+                dirInstrQueue.push(Dir.West);
+            } else if (keyCode == key.up) {
+                dirInstrQueue.push(Dir.North);
+            } else if (keyCode == key.right) {
+                dirInstrQueue.push(Dir.East);
+            } else if (keyCode == key.down) {
+                dirInstrQueue.push(Dir.South);
+            } else if (keyCode == key.space) {
+                button.click();
+            }
+        }
 	}
 
 	function pointString(point) {

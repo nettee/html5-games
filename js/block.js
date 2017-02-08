@@ -210,6 +210,7 @@ function blockApp() {
 		var keyCode = e.keyCode ? e.keyCode : e.which;
 
         if (keyCode == key.space) {
+            // bugfix: enable space key whatever game status is.
             button.click();
         } else {
 
