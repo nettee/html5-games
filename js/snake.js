@@ -119,7 +119,6 @@ function snakeApp() {
 			return;
 		}
 		window.setTimeout(gameLoop, 1000 / speed);
-        console.log(status);
 		if (status == Status.Running) {
 			moveForward();
 			repaintAll();
