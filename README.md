@@ -14,10 +14,19 @@ Classic games implemented by HTML5 Canvas.
 
 ![Block Breaker](img/Block-Breaker.png)
 
-## Run
+## Run as a web page
 
 ```Shell
 make start
 ```
 
 Or you can open the html files in your browser (Chrome recommended).
+
+## Run as a desktop app
+
+Powered by Electron.
+
+```Shell
+npm install
+npm start
+```
