@@ -14,14 +14,15 @@ let mainWindow
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-      width: 734, 
-      height: 486,
+      width: 800, 
+      height: 540,
       resizable: false,
   })
 
   // and load the index.html of the app.
+  // TODO 目前页面之间无回退功能
   mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'snake.html'),
+    pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
   }))
